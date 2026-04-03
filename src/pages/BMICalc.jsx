@@ -8,6 +8,7 @@ class BMICalc extends Component {
     this.state = {
       weight: '',
       height: '',
+      heightUnit: 'cm',
       bmi: null,
       category: '',
       error: '',
@@ -16,10 +17,15 @@ class BMICalc extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleCalculate = this.handleCalculate.bind(this);
     this.handleReset = this.handleReset.bind(this);
+    this.handleUnitToggle = this.handleUnitToggle.bind(this);
   }
 
   handleChange(e) {
     this.setState({ [e.target.name]: e.target.value, error: '' });
+  }
+
+  handleUnitToggle(unit) {
+    this.setState({ heightUnit: unit, height: '', error: '' });
   }
 
   getCategory(bmi) {
@@ -32,14 +38,15 @@ class BMICalc extends Component {
   handleCalculate(e) {
     e.preventDefault();
     const weight = parseFloat(this.state.weight);
-    const height = parseFloat(this.state.height);
+    const heightRaw = parseFloat(this.state.height);
 
-    if (!weight || !height || weight <= 0 || height <= 0) {
+    if (!weight || !heightRaw || weight <= 0 || heightRaw <= 0) {
       this.setState({ error: 'Please enter valid positive values for weight and height.' });
       return;
     }
 
-    const heightInMeters = height / 100;
+    const heightCm = this.state.heightUnit === 'in' ? heightRaw * 2.54 : heightRaw;
+    const heightInMeters = heightCm / 100;
     const bmi = parseFloat((weight / (heightInMeters * heightInMeters)).toFixed(1));
     const category = this.getCategory(bmi);
 
@@ -51,6 +58,7 @@ class BMICalc extends Component {
     this.setState({
       weight: '',
       height: '',
+      heightUnit: 'cm',
       bmi: null,
       category: '',
       error: '',
@@ -59,7 +67,7 @@ class BMICalc extends Component {
   }
 
   render() {
-    const { weight, height, bmi, category, error } = this.state;
+    const { weight, height, heightUnit, bmi, category, error } = this.state;
 
     return (
       <section className="page-section">
@@ -91,19 +99,37 @@ class BMICalc extends Component {
 
             <div className="form-group">
               <label className="form-label" htmlFor="height">
-                Height (cm)
+                Height
               </label>
-              <input
-                id="height"
-                type="number"
-                name="height"
-                className="form-input"
-                placeholder="e.g. 175"
-                value={height}
-                onChange={this.handleChange}
-                min="1"
-                step="0.1"
-              />
+              <div className="input-with-toggle">
+                <input
+                  id="height"
+                  type="number"
+                  name="height"
+                  className="form-input"
+                  placeholder={heightUnit === 'cm' ? 'e.g. 175' : 'e.g. 69'}
+                  value={height}
+                  onChange={this.handleChange}
+                  min="1"
+                  step="0.1"
+                />
+                <div className="unit-toggle">
+                  <button
+                    type="button"
+                    className={`unit-btn ${heightUnit === 'cm' ? 'unit-btn--active' : ''}`}
+                    onClick={() => this.handleUnitToggle('cm')}
+                  >
+                    cm
+                  </button>
+                  <button
+                    type="button"
+                    className={`unit-btn ${heightUnit === 'in' ? 'unit-btn--active' : ''}`}
+                    onClick={() => this.handleUnitToggle('in')}
+                  >
+                    in
+                  </button>
+                </div>
+              </div>
             </div>
 
             {error && <p className="form-error">{error}</p>}
@@ -130,7 +156,10 @@ class BMICalc extends Component {
             <StatCard label="BMI Score" value={bmi} />
             <StatCard label="Category" value={category} />
             <StatCard label="Weight (kg)" value={parseFloat(weight)} />
-            <StatCard label="Height (cm)" value={parseFloat(height)} />
+            <StatCard
+              label={`Height (${heightUnit})`}
+              value={parseFloat(height)}
+            />
           </div>
         )}
 

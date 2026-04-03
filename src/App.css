@@ -1,5 +1,12 @@
+/* =========================================================
+   App.css — Fitness & Nutrition Tracker
+   Palette: Slate neutrals, off-white, muted steel blue
+   Supports: Light mode & Dark mode via body.dark class
+   ========================================================= */
+
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
+/* ─── Reset & Base ───────────────────────────────────────── */
 
 *,
 *::before,
@@ -8,6 +15,8 @@
   margin: 0;
   padding: 0;
 }
+
+/* ─── Light Mode Variables ───────────────────────────────── */
 
 :root {
   --color-bg: #f4f5f7;
@@ -22,6 +31,9 @@
   --color-accent: #3b5bdb;
   --color-accent-hover: #2f4ac0;
   --color-accent-light: #eef1fc;
+
+  --color-water: #0ea5e9;
+  --color-water-light: #e0f2fe;
 
   --color-success: #2e7d52;
   --color-danger: #b02a27;
@@ -44,6 +56,31 @@
   --header-height: 60px;
 }
 
+/* ─── Dark Mode Variables ────────────────────────────────── */
+
+body.dark {
+  --color-bg: #0f1117;
+  --color-surface: #1a1d27;
+  --color-border: #2a2f3f;
+  --color-border-soft: #222536;
+
+  --color-text-primary: #e8eaf0;
+  --color-text-secondary: #9099b0;
+  --color-text-muted: #5a6278;
+
+  --color-accent: #5c7cfa;
+  --color-accent-hover: #4c6ef5;
+  --color-accent-light: #1e2340;
+
+  --color-water: #38bdf8;
+  --color-water-light: #0c1f2e;
+
+  --color-goal-active-bg: #5c7cfa;
+  --color-goal-active-fg: #ffffff;
+}
+
+/* ─── Base Body ──────────────────────────────────────────── */
+
 html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
@@ -54,6 +91,7 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text-primary);
   min-height: 100vh;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* ─── App Shell ──────────────────────────────────────────── */
@@ -72,14 +110,14 @@ body {
   z-index: 100;
   background-color: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
-  height: var(--header-height);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 .header-inner {
   max-width: var(--max-width);
   margin: 0 auto;
   padding: 0 24px;
-  height: 100%;
+  height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -90,10 +128,12 @@ body {
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--color-text-primary);
+  white-space: nowrap;
 }
 
 .app-nav {
   display: flex;
+  align-items: center;
   gap: 4px;
 }
 
@@ -115,6 +155,30 @@ body {
 .nav-link--active {
   background-color: var(--color-accent-light);
   color: var(--color-accent);
+}
+
+/* ─── Dark Mode Toggle Button ────────────────────────────── */
+
+.dark-toggle {
+  margin-left: 8px;
+  padding: 6px 14px;
+  height: 34px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.dark-toggle:hover {
+  background-color: var(--color-accent-light);
+  color: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 /* ─── Main Content ───────────────────────────────────────── */
@@ -158,6 +222,7 @@ body {
   border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: var(--shadow-sm);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 .card-title {
@@ -185,6 +250,7 @@ body {
   flex-direction: column;
   gap: 6px;
   box-shadow: var(--shadow-sm);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
 }
 
 .stat-label {
@@ -248,7 +314,7 @@ body {
   font-size: 0.9rem;
   color: var(--color-text-primary);
   background-color: var(--color-bg);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.25s ease;
   outline: none;
 }
 
@@ -258,17 +324,30 @@ body {
 
 .form-input:focus {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(59, 91, 219, 0.1);
+  box-shadow: 0 0 0 3px rgba(59, 91, 219, 0.12);
   background-color: var(--color-surface);
+}
+
+/* Inline edit inputs inside table cells */
+.form-input--inline {
+  height: 34px;
+  font-size: 0.85rem;
+  padding: 0 10px;
+  width: 100%;
 }
 
 .form-error {
   font-size: 0.82rem;
   color: var(--color-danger);
   padding: 8px 12px;
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
+  background-color: rgba(176, 42, 39, 0.08);
+  border: 1px solid rgba(176, 42, 39, 0.2);
   border-radius: var(--radius-sm);
+}
+
+.form-error--inline {
+  margin-top: 4px;
+  padding: 4px 8px;
 }
 
 .form-actions {
@@ -319,6 +398,48 @@ body {
   height: 32px;
   padding: 0 14px;
   font-size: 0.8rem;
+}
+
+/* ─── Unit Toggle (cm / in) ──────────────────────────────── */
+
+.input-with-toggle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.input-with-toggle .form-input {
+  flex: 1;
+}
+
+.unit-toggle {
+  display: flex;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.unit-btn {
+  padding: 0 14px;
+  height: 42px;
+  background: var(--color-bg);
+  border: none;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.unit-btn:hover {
+  color: var(--color-text-primary);
+}
+
+.unit-btn--active {
+  background: var(--color-accent);
+  color: #ffffff;
 }
 
 /* ─── Goal Selector ──────────────────────────────────────── */
@@ -399,19 +520,45 @@ body {
   background-color: var(--color-danger);
 }
 
+.progress-fill--water {
+  background-color: var(--color-water);
+}
+
 .progress-percent {
   font-size: 0.78rem;
   color: var(--color-text-muted);
   margin-top: 8px;
 }
 
+/* ─── Water Tracker ──────────────────────────────────────── */
 
-
-.bmi-scale {
-  border-left: 3px solid var(--color-accent);
-  background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-accent-light) 100%);
-  padding: 28px;
+.water-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 4px;
 }
+
+.water-quick-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.water-custom-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  align-items: center;
+}
+
+.water-custom-form .form-input {
+  flex: 1;
+  max-width: 220px;
+}
+
+/* ─── BMI Scale ──────────────────────────────────────────── */
 
 .scale-title {
   font-size: 0.9rem;
@@ -498,6 +645,7 @@ body {
   padding: 12px;
   color: var(--color-text-primary);
   border-bottom: 1px solid var(--color-border-soft);
+  vertical-align: middle;
 }
 
 .log-td--index {
@@ -512,6 +660,11 @@ body {
   font-weight: 500;
 }
 
+.log-td--actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
 .log-total-row .log-td {
   font-weight: 600;
   border-bottom: none;
@@ -523,22 +676,56 @@ body {
   color: var(--color-accent);
 }
 
-.btn-remove {
+/* ─── Action Buttons (Edit / Remove / Save / Cancel) ─────── */
+
+.btn-action {
   background: none;
-  border: none;
+  border: 1px solid transparent;
   font-family: var(--font-sans);
-  font-size: 0.8rem;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  padding: 4px 8px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 4px 10px;
   border-radius: var(--radius-sm);
-  float: right;
-  transition: color 0.15s ease, background 0.15s ease;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-left: 4px;
 }
 
-.btn-remove:hover {
+.btn-action--edit {
+  color: var(--color-accent);
+  border-color: var(--color-accent-light);
+}
+
+.btn-action--edit:hover {
+  background-color: var(--color-accent-light);
+}
+
+.btn-action--remove {
   color: var(--color-danger);
-  background-color: #fef2f2;
+  border-color: rgba(176, 42, 39, 0.15);
+}
+
+.btn-action--remove:hover {
+  background-color: rgba(176, 42, 39, 0.08);
+}
+
+.btn-action--save {
+  color: var(--color-success);
+  border-color: rgba(46, 125, 82, 0.2);
+}
+
+.btn-action--save:hover {
+  background-color: rgba(46, 125, 82, 0.08);
+}
+
+.btn-action--cancel {
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+
+.btn-action--cancel:hover {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
 }
 
 /* ─── Notice Card ────────────────────────────────────────── */
@@ -559,6 +746,7 @@ body {
   border-top: 1px solid var(--color-border);
   padding: 18px 24px;
   text-align: center;
+  transition: border-color 0.25s ease;
 }
 
 .app-footer p {
@@ -570,14 +758,14 @@ body {
 
 @media (max-width: 600px) {
   .header-inner {
-    flex-direction: column;
+    flex-wrap: wrap;
     height: auto;
-    padding: 12px 16px;
+    padding: 10px 16px;
     gap: 8px;
   }
 
-  .app-header {
-    height: auto;
+  .app-nav {
+    flex-wrap: wrap;
   }
 
   .app-main {
@@ -592,11 +780,23 @@ body {
     grid-template-columns: 1fr 1fr;
   }
 
+  .water-stats {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
   .goal-selector {
     flex-direction: column;
   }
 
   .page-title {
     font-size: 1.3rem;
+  }
+
+  .water-quick-btns {
+    gap: 6px;
+  }
+
+  .log-table {
+    font-size: 0.8rem;
   }
 }

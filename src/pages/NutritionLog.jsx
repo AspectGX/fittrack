@@ -8,18 +8,30 @@ const GOALS = {
   Cut: { multiplier: 0.85, label: 'Caloric Deficit (-15%)' },
 };
 
+const WATER_GOAL_ML = 2500;
+
 function NutritionLog({ weight, bmi }) {
   const [goal, setGoal] = useState('Maintain');
   const [targetCalories, setTargetCalories] = useState(null);
+
+  // Food log state
   const [foodName, setFoodName] = useState('');
   const [foodCalories, setFoodCalories] = useState('');
   const [log, setLog] = useState([]);
   const [formError, setFormError] = useState('');
 
+  // Edit state
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editCalories, setEditCalories] = useState('');
+  const [editError, setEditError] = useState('');
+
+  // Water tracker state
+  const [waterMl, setWaterMl] = useState(0);
+  const [customWater, setCustomWater] = useState('');
+
   useEffect(() => {
     if (weight && weight > 0) {
-      // Standard BMR estimate using body weight only (Mifflin simplified base)
-      // BMR ≈ 22 × weight (kg) as a neutral estimate; apply activity factor of 1.375 (lightly active)
       const bmr = 22 * weight;
       const tdee = Math.round(bmr * 1.375);
       const adjusted = Math.round(tdee * GOALS[goal].multiplier);
@@ -31,11 +43,13 @@ function NutritionLog({ weight, bmi }) {
 
   const totalConsumed = log.reduce((sum, item) => sum + item.calories, 0);
   const remaining = targetCalories !== null ? targetCalories - totalConsumed : null;
+  const waterPercent = Math.min(Math.round((waterMl / WATER_GOAL_ML) * 100), 100);
+
+  // ── Food log handlers ───────────────────────────────────
 
   function handleAddFood(e) {
     e.preventDefault();
     const calories = parseInt(foodCalories, 10);
-
     if (!foodName.trim()) {
       setFormError('Food name is required.');
       return;
@@ -44,11 +58,7 @@ function NutritionLog({ weight, bmi }) {
       setFormError('Please enter a valid calorie amount.');
       return;
     }
-
-    setLog((prev) => [
-      ...prev,
-      { id: Date.now(), name: foodName.trim(), calories },
-    ]);
+    setLog((prev) => [...prev, { id: Date.now(), name: foodName.trim(), calories }]);
     setFoodName('');
     setFoodCalories('');
     setFormError('');
@@ -61,6 +71,61 @@ function NutritionLog({ weight, bmi }) {
   function handleClearLog() {
     setLog([]);
   }
+
+  // ── Edit handlers ───────────────────────────────────────
+
+  function handleStartEdit(item) {
+    setEditingId(item.id);
+    setEditName(item.name);
+    setEditCalories(String(item.calories));
+    setEditError('');
+  }
+
+  function handleCancelEdit() {
+    setEditingId(null);
+    setEditName('');
+    setEditCalories('');
+    setEditError('');
+  }
+
+  function handleSaveEdit(id) {
+    const calories = parseInt(editCalories, 10);
+    if (!editName.trim()) {
+      setEditError('Food name cannot be empty.');
+      return;
+    }
+    if (!editCalories || isNaN(calories) || calories <= 0) {
+      setEditError('Please enter a valid calorie amount.');
+      return;
+    }
+    setLog((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, name: editName.trim(), calories } : item
+      )
+    );
+    handleCancelEdit();
+  }
+
+  // ── Water handlers ──────────────────────────────────────
+
+  function handleAddWater(amount) {
+    setWaterMl((prev) => Math.min(prev + amount, WATER_GOAL_ML * 2));
+  }
+
+  function handleCustomWater(e) {
+    e.preventDefault();
+    const amount = parseInt(customWater, 10);
+    if (!isNaN(amount) && amount > 0) {
+      handleAddWater(amount);
+      setCustomWater('');
+    }
+  }
+
+  function handleResetWater() {
+    setWaterMl(0);
+  }
+
+  // ── Guard: no weight entered yet ────────────────────────
 
   if (!weight) {
     return (
@@ -83,11 +148,11 @@ function NutritionLog({ weight, bmi }) {
       <div className="page-header">
         <h1 className="page-title">Calorie Tracker</h1>
         <p className="page-subtitle">
-          Set your dietary goal and log your food intake for the day.
+          Set your dietary goal, log food intake, and track hydration for the day.
         </p>
       </div>
 
-      {/* Shared props from BMI page */}
+      {/* Stats from BMI page */}
       <div className="results-grid">
         <StatCard label="Body Weight (kg)" value={weight} />
         <StatCard label="BMI Score" value={bmi} />
@@ -123,11 +188,11 @@ function NutritionLog({ weight, bmi }) {
         </div>
       )}
 
-      {/* Progress Bar */}
+      {/* Calorie Progress Bar */}
       {targetCalories !== null && (
         <div className="card">
           <div className="progress-header">
-            <span className="progress-label">Daily Progress</span>
+            <span className="progress-label">Calorie Progress</span>
             <span className="progress-value">
               {totalConsumed} / {targetCalories} kcal
             </span>
@@ -135,9 +200,7 @@ function NutritionLog({ weight, bmi }) {
           <div className="progress-track">
             <div
               className={`progress-fill ${totalConsumed > targetCalories ? 'progress-fill--over' : ''}`}
-              style={{
-                width: `${Math.min((totalConsumed / targetCalories) * 100, 100)}%`,
-              }}
+              style={{ width: `${Math.min((totalConsumed / targetCalories) * 100, 100)}%` }}
             />
           </div>
           <p className="progress-percent">
@@ -146,7 +209,61 @@ function NutritionLog({ weight, bmi }) {
         </div>
       )}
 
-      {/* Food Log Form */}
+      {/* ── Water Intake Tracker ── */}
+      <div className="card">
+        <div className="log-header">
+          <h2 className="card-title">Water Intake</h2>
+          <button type="button" className="btn btn--ghost btn--sm" onClick={handleResetWater}>
+            Reset
+          </button>
+        </div>
+
+        <div className="water-stats">
+          <StatCard label="Consumed (ml)" value={waterMl} />
+          <StatCard label="Goal (ml)" value={WATER_GOAL_ML} />
+          <StatCard label="Remaining (ml)" value={Math.max(WATER_GOAL_ML - waterMl, 0)} />
+        </div>
+
+        <div className="progress-header" style={{ marginTop: '16px' }}>
+          <span className="progress-label">Hydration Progress</span>
+          <span className="progress-value">{waterPercent}%</span>
+        </div>
+        <div className="progress-track">
+          <div
+            className="progress-fill progress-fill--water"
+            style={{ width: `${waterPercent}%` }}
+          />
+        </div>
+
+        <div className="water-quick-btns">
+          {[150, 250, 350, 500].map((amount) => (
+            <button
+              key={amount}
+              type="button"
+              className="btn btn--ghost btn--sm"
+              onClick={() => handleAddWater(amount)}
+            >
+              + {amount} ml
+            </button>
+          ))}
+        </div>
+
+        <form onSubmit={handleCustomWater} className="water-custom-form">
+          <input
+            type="number"
+            className="form-input"
+            placeholder="Custom amount (ml)"
+            value={customWater}
+            min="1"
+            onChange={(e) => setCustomWater(e.target.value)}
+          />
+          <button type="submit" className="btn btn--primary">
+            Add
+          </button>
+        </form>
+      </div>
+
+      {/* ── Food Log Form ── */}
       <div className="card">
         <h2 className="card-title">Log Food Item</h2>
         <form onSubmit={handleAddFood} className="form form--inline" noValidate>
@@ -160,10 +277,7 @@ function NutritionLog({ weight, bmi }) {
               className="form-input"
               placeholder="e.g. Grilled Chicken Breast"
               value={foodName}
-              onChange={(e) => {
-                setFoodName(e.target.value);
-                setFormError('');
-              }}
+              onChange={(e) => { setFoodName(e.target.value); setFormError(''); }}
             />
           </div>
           <div className="form-group">
@@ -177,10 +291,7 @@ function NutritionLog({ weight, bmi }) {
               placeholder="e.g. 250"
               value={foodCalories}
               min="1"
-              onChange={(e) => {
-                setFoodCalories(e.target.value);
-                setFormError('');
-              }}
+              onChange={(e) => { setFoodCalories(e.target.value); setFormError(''); }}
             />
           </div>
           {formError && <p className="form-error">{formError}</p>}
@@ -192,16 +303,12 @@ function NutritionLog({ weight, bmi }) {
         </form>
       </div>
 
-      {/* Food Log Table */}
+      {/* ── Food Log Table ── */}
       {log.length > 0 && (
         <div className="card">
           <div className="log-header">
             <h2 className="card-title">Food Log</h2>
-            <button
-              type="button"
-              className="btn btn--ghost btn--sm"
-              onClick={handleClearLog}
-            >
+            <button type="button" className="btn btn--ghost btn--sm" onClick={handleClearLog}>
               Clear All
             </button>
           </div>
@@ -211,35 +318,80 @@ function NutritionLog({ weight, bmi }) {
                 <th className="log-th">#</th>
                 <th className="log-th">Food Item</th>
                 <th className="log-th">Calories (kcal)</th>
-                <th className="log-th">Action</th>
+                <th className="log-th">Actions</th>
               </tr>
             </thead>
             <tbody>
               {log.map((item, index) => (
                 <tr key={item.id} className="log-row">
-                  <td className="log-td log-td--index">{index + 1}</td>
-                  <td className="log-td">{item.name}</td>
-                  <td className="log-td log-td--calories">{item.calories}</td>
-                  <td className="log-td">
-                    <button
-                      type="button"
-                      className="btn-remove"
-                      onClick={() => handleRemoveEntry(item.id)}
-                    >
-                      Remove
-                    </button>
-                  </td>
+                  {editingId === item.id ? (
+                    <>
+                      <td className="log-td log-td--index">{index + 1}</td>
+                      <td className="log-td">
+                        <input
+                          type="text"
+                          className="form-input form-input--inline"
+                          value={editName}
+                          onChange={(e) => { setEditName(e.target.value); setEditError(''); }}
+                        />
+                      </td>
+                      <td className="log-td">
+                        <input
+                          type="number"
+                          className="form-input form-input--inline"
+                          value={editCalories}
+                          min="1"
+                          onChange={(e) => { setEditCalories(e.target.value); setEditError(''); }}
+                        />
+                        {editError && <p className="form-error form-error--inline">{editError}</p>}
+                      </td>
+                      <td className="log-td log-td--actions">
+                        <button
+                          type="button"
+                          className="btn-action btn-action--save"
+                          onClick={() => handleSaveEdit(item.id)}
+                        >
+                          Save
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-action btn-action--cancel"
+                          onClick={handleCancelEdit}
+                        >
+                          Cancel
+                        </button>
+                      </td>
+                    </>
+                  ) : (
+                    <>
+                      <td className="log-td log-td--index">{index + 1}</td>
+                      <td className="log-td">{item.name}</td>
+                      <td className="log-td log-td--calories">{item.calories}</td>
+                      <td className="log-td log-td--actions">
+                        <button
+                          type="button"
+                          className="btn-action btn-action--edit"
+                          onClick={() => handleStartEdit(item)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-action btn-action--remove"
+                          onClick={() => handleRemoveEntry(item.id)}
+                        >
+                          Remove
+                        </button>
+                      </td>
+                    </>
+                  )}
                 </tr>
               ))}
             </tbody>
             <tfoot>
               <tr className="log-total-row">
-                <td className="log-td" colSpan={2}>
-                  Total
-                </td>
-                <td className="log-td log-td--calories log-td--total">
-                  {totalConsumed}
-                </td>
+                <td className="log-td" colSpan={2}>Total</td>
+                <td className="log-td log-td--calories log-td--total">{totalConsumed}</td>
                 <td className="log-td" />
               </tr>
             </tfoot>
