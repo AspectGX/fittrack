@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import BMICalc from './pages/BMICalc.jsx';
 import NutritionLog from './pages/NutritionLog.jsx';

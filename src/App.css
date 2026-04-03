@@ -16,67 +16,44 @@
   padding: 0;
 }
 
-/* ─── Light Mode Variables ───────────────────────────────── */
-
 :root {
-  --color-bg: #f4f5f7;
-  --color-surface: #ffffff;
-  --color-border: #dde1e9;
-  --color-border-soft: #eef0f4;
+  --color-bg: #050505;
+  --color-surface: #0a0a0a;
+  --color-border: #1a1a1a;
+  --color-border-soft: #232323;
 
-  --color-text-primary: #1a1f2e;
-  --color-text-secondary: #5a6278;
-  --color-text-muted: #8d95a8;
+  --color-text-primary: #f2f2f2;
+  --color-text-secondary: #a3a3a3;
+  --color-text-muted: #525252;
 
-  --color-accent: #3b5bdb;
-  --color-accent-hover: #2f4ac0;
-  --color-accent-light: #eef1fc;
+  --color-accent: #7c3aed;
+  /* Premium Purple */
+  --color-accent-hover: #6d28d9;
+  --color-accent-light: rgba(124, 58, 237, 0.15);
+  /* Purple Glass/Glow effect */
 
   --color-water: #0ea5e9;
-  --color-water-light: #e0f2fe;
+  --color-water-light: rgba(14, 165, 233, 0.15);
 
-  --color-success: #2e7d52;
-  --color-danger: #b02a27;
-  --color-warning: #b45309;
+  --color-success: #10b981;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
 
-  --color-goal-active-bg: #3b5bdb;
+  --color-goal-active-bg: #7c3aed;
   --color-goal-active-fg: #ffffff;
 
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 15px rgba(124, 58, 237, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 25px rgba(124, 58, 237, 0.1);
 
   --font-sans: 'DM Sans', system-ui, sans-serif;
   --font-mono: 'DM Mono', 'Courier New', monospace;
 
   --max-width: 760px;
   --header-height: 60px;
-}
-
-/* ─── Dark Mode Variables ────────────────────────────────── */
-
-body.dark {
-  --color-bg: #0f1117;
-  --color-surface: #1a1d27;
-  --color-border: #2a2f3f;
-  --color-border-soft: #222536;
-
-  --color-text-primary: #e8eaf0;
-  --color-text-secondary: #9099b0;
-  --color-text-muted: #5a6278;
-
-  --color-accent: #5c7cfa;
-  --color-accent-hover: #4c6ef5;
-  --color-accent-light: #1e2340;
-
-  --color-water: #38bdf8;
-  --color-water-light: #0c1f2e;
-
-  --color-goal-active-bg: #5c7cfa;
-  --color-goal-active-fg: #ffffff;
 }
 
 /* ─── Base Body ──────────────────────────────────────────── */
